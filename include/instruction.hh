@@ -20,14 +20,8 @@
 class JavaClass;
 class BasicBlock;
 class Function;
-
-class Instruction : public Entity
-{
-public:
-  Instruction(uint32_t address, int opcode,
-	      MIPS_register_t rs, MIPS_register_t rt, MIPS_register_t rd, int32_t extra);
-
-  virtual ~Instruction();
+struct InstructionBase: public Entity{
+  virtual ~InstructionBase();
 
   virtual bool isBranch()
   {
@@ -44,17 +38,7 @@ public:
     return false;
   }
 
-  mips_opcode_t getOpcode()
-  {
-    return (mips_opcode_t)this->opcode;
-  }
 
-  bool isBranchTarget()
-  {
-    return this->branchTarget;
-  }
-
-  void setBranchTarget();
 
   virtual bool isNop()
   {
@@ -93,6 +77,27 @@ public:
   virtual int fillDestinations(int *p) { return 0; };
 
   virtual int fillSources(int *p) { return 0; };
+};
+class Instruction : public InstructionBase
+{
+public:
+  Instruction(uint32_t address, int opcode,
+	      MIPS_register_t rs, MIPS_register_t rt, MIPS_register_t rd, int32_t extra);
+
+  virtual ~Instruction();
+
+
+  mips_opcode_t getOpcode()
+  {
+    return (mips_opcode_t)this->opcode;
+  }
+
+  bool isBranchTarget()
+  {
+    return this->branchTarget;
+  }
+
+  void setBranchTarget();
 
   void setDelayed(Instruction *delayed)
   {
