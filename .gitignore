@@ -1,0 +1,15 @@
+*.pyc
+*.d
+*.oo
+*.o
+*~
+*.a
+include/generated
+tmpclasses
+classes/
+.dirs
+res/
+*.jar
+*.jad
+.jar_built
+out/
