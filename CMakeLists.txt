@@ -37,24 +37,24 @@ set (translator_SRCS
 	external/elfutils/libdw_alloc.c
 	external/elfutils/libdw_findcu.c
 	external/elfutils/libdw_form.c
-	basicblock.cc
-    builtins.cc
-    calltablemethod.cc
-    codeblock.cc
-	controller.cc
-    elf.cc
-    emit.cc
-    function.cc
-    functioncolocation.cc
-	instruction.cc
-	javamethod.cc
-    javaclass.cc
-    mips.cc
-    mips-dwarf.c
-    registerallocator.cc
-    string-instruction.cc
-    syscall-wrappers.cc
-    utils.cc)
+	src/basicblock.cc
+    src/builtins.cc
+    src/calltablemethod.cc
+    src/codeblock.cc
+	src/controller.cc
+    src/elf.cc
+    src/emit.cc
+    src/function.cc
+    src/functioncolocation.cc
+	src/instruction.cc
+	src/javamethod.cc
+    src/javaclass.cc
+    src/mips.cc
+    src/mips-dwarf.c
+    src/registerallocator.cc
+    src/string-instruction.cc
+    src/syscall-wrappers.cc
+    src/utils.cc)
 
 include_directories(
 	external/elfutils/
