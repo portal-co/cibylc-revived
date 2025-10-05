@@ -12,11 +12,10 @@
 #ifndef __JAVACLASS_HH__
 #define __JAVACLASS_HH__
 
-#include <javamethod.hh>
 #include <instruction.hh>
+#include <javamethod.hh>
 
-class JavaClass : public CodeBlock
-{
+class JavaClass : public CodeBlock {
 public:
   JavaClass(const char *name, JavaMethod **methods, int first, int last);
 
@@ -24,13 +23,9 @@ public:
 
   virtual JavaMethod *getMethodByAddress(uint32_t addr);
 
-  int getNumberOfMethods()
-  {
-    return this->n_methods;
-  }
+  int getNumberOfMethods() { return this->n_methods; }
 
-  JavaMethod *getMethodByIndex(int idx)
-  {
+  JavaMethod *getMethodByIndex(int idx) {
     if (idx < 0 || idx > this->n_methods)
       return NULL;
 
@@ -43,10 +38,7 @@ public:
 
   const char *getName();
 
-  const char *getFileName()
-  {
-    return this->filename;
-  }
+  const char *getFileName() { return this->filename; }
 
 protected:
   int n_methods;
@@ -56,8 +48,7 @@ protected:
   char *filename;
 };
 
-class CallTableClass : public JavaClass
-{
+class CallTableClass : public JavaClass {
 public:
   CallTableClass(const char *name, JavaMethod **methods, int first, int last);
 

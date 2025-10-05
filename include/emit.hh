@@ -12,27 +12,28 @@
 #ifndef __EMIT_HH__
 #define __EMIT_HH__
 
-#include <stdio.h>
-#include <stdint.h>
 #include <registerallocator.hh>
+#include <stdint.h>
+#include <stdio.h>
 
-class Emit
-{
+class Emit {
 public:
   Emit();
 
-  void bc_comment(const char *what) { this->output("; "); this->write(what); }
+  void bc_comment(const char *what) {
+    this->output("; ");
+    this->write(what);
+  }
 
   void bc_generic_insn(const char *what) { this->writeIndent(what); }
 
   void bc_label(const char *what, ...);
 
-  void bc_label(uint32_t addr)
-  {
-    this->bc_label("L_%x", addr);
-  }
+  void bc_label(uint32_t addr) { this->bc_label("L_%x", addr); }
 
-  void bc_checkcast(const char *what) { this->writeIndent("checkcast %s", what); }
+  void bc_checkcast(const char *what) {
+    this->writeIndent("checkcast %s", what);
+  }
 
   void bc_goto(uint32_t dst) { this->writeIndent("goto L_%x", dst); }
 
@@ -49,7 +50,7 @@ public:
   void bc_pushconst_u(uint32_t nr);
 
   void bc_pushconst_l(uint64_t nr);
-  
+
   void bc_ret(MIPS_register_t reg);
 
   void bc_astore(MIPS_register_t reg);
@@ -71,7 +72,7 @@ public:
   void bc_putstatic(const char *what, ...);
 
   void bc_aload(int nr);
-  
+
   void bc_iload(int n);
 
   void bc_istore(int n);

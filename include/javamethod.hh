@@ -14,30 +14,28 @@
 
 #include <map>
 
+#include <config.hh>
+#include <elf.hh>
 #include <function.hh>
 #include <mips.hh>
-#include <utils.h>
-#include <elf.hh>
-#include <config.hh>
 #include <registerallocator.hh>
+#include <utils.h>
 
 using namespace std;
 
 class JavaClass;
 
 /* Helper class */
-class ExceptionHandler
-{
+class ExceptionHandler {
 public:
-  ExceptionHandler(uint32_t start, uint32_t end)
-  {
+  ExceptionHandler(uint32_t start, uint32_t end) {
     this->start = start;
     this->end = end;
 
-    this->name = (char*)xcalloc(32, 1);
+    this->name = (char *)xcalloc(32, 1);
     snprintf(this->name, 32, "L_EXH_%08x_%08x", start, end);
   }
-  
+
   virtual bool pass2();
 
   uint32_t start;
@@ -45,8 +43,7 @@ public:
   char *name;
 };
 
-class JavaMethod : public CodeBlock
-{
+class JavaMethod : public CodeBlock {
 public:
   JavaMethod(Function **fns, int first, int last);
 
@@ -58,10 +55,7 @@ public:
 
   RegisterAllocator *getRegisterAllocator();
 
-  virtual const char *getName()
-  {
-    return this->functions[0]->getName();
-  }
+  virtual const char *getName() { return this->functions[0]->getName(); }
 
   virtual char *getJavaMethodName();
 
@@ -85,13 +79,9 @@ public:
 
   void setReturnSize(int n);
 
-  int getRegistersToPass()
-  {
-    return this->n_registersToPass;
-  }
+  int getRegistersToPass() { return this->n_registersToPass; }
 
-  bool opcodeIsUsed(mips_opcode_t op)
-  {
+  bool opcodeIsUsed(mips_opcode_t op) {
     for (int i = 0; i < this->n_functions; i++)
       if (this->functions[i]->opcodeIsUsed(op))
         return true;
@@ -118,25 +108,13 @@ public:
   /**
    * Returns if this method is a multi-function-one
    */
-  virtual bool hasMultipleFunctions()
-  {
-    return (this->n_functions > 1);
-  }
+  virtual bool hasMultipleFunctions() { return (this->n_functions > 1); }
 
-  int getNumberOfFunctions()
-  {
-    return this->n_functions;
-  }
+  int getNumberOfFunctions() { return this->n_functions; }
 
-  virtual size_t getBytecodeSize(void)
-  {
-    return this->bc_size;
-  };
+  virtual size_t getBytecodeSize(void) { return this->bc_size; };
 
-  virtual size_t getMaxStackHeight(void)
-  {
-    return this->maxStackHeight;
-  };
+  virtual size_t getMaxStackHeight(void) { return this->maxStackHeight; };
 
   Function *getFunctionByAddress(uint32_t addr);
 
@@ -172,10 +150,10 @@ protected:
   MIPS_register_t *m_possibleArguments;
 };
 
-class CallTableMethod : public JavaMethod
-{
+class CallTableMethod : public JavaMethod {
 public:
-  CallTableMethod(int maxFunctions, cibyl_exported_symbol_t *exp_syms, size_t n_exp_syms);
+  CallTableMethod(int maxFunctions, cibyl_exported_symbol_t *exp_syms,
+                  size_t n_exp_syms);
 
   void addFunction(Function *fn);
 
@@ -183,22 +161,15 @@ public:
 
   bool pass2();
 
-  const char *getName()
-  {
-    return "call";
-  }
+  const char *getName() { return "call"; }
 
-  char *getJavaMethodName()
-  {
+  char *getJavaMethodName() {
     if (config->threadSafe)
-      return (char*)"call(IIIIII)J";
-    return (char*)"call(IIIIII)I";
+      return (char *)"call(IIIIII)J";
+    return (char *)"call(IIIIII)I";
   }
 
-  bool hasMultipleFunctions()
-  {
-    return false;
-  }
+  bool hasMultipleFunctions() { return false; }
 
   typedef map<uint32_t, Function *> JavaFunctionTable_t;
 

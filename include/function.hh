@@ -12,16 +12,14 @@
 #ifndef __FUNCTION_HH__
 #define __FUNCTION_HH__
 
-#include <mips.hh>
 #include <basicblock.hh>
+#include <mips.hh>
 
 class JavaMethod;
 
-class Function : public CodeBlock
-{
+class Function : public CodeBlock {
 public:
-  Function(const char *name, Instruction **insns,
-	   int first, int last);
+  Function(const char *name, Instruction **insns, int first, int last);
 
   virtual ~Function();
 
@@ -33,50 +31,34 @@ public:
    * Get the name of this function as it will appear in the Java
    * bytecode. Unique in the entire program.
    */
-  const char *getName()
-  {
-    return this->name;
-  }
+  const char *getName() { return this->name; }
 
   /**
    * Get the name of this function as it appears in the C source
    * code. Might not be unique (static functions with the same name).
    */
-  const char *getRealName()
-  {
-    return this->realName;
-  }
+  const char *getRealName() { return this->realName; }
 
   int fillDestinations(int *p);
 
   int fillSources(int *p);
 
-  bool hasRegisterIndirectJumps()
-  {
-    return this->registerIndirectJumps;
-  }
+  bool hasRegisterIndirectJumps() { return this->registerIndirectJumps; }
 
-  bool opcodeIsUsed(mips_opcode_t op)
-  {
+  bool opcodeIsUsed(mips_opcode_t op) {
     panic_if(op < 0 || op > N_INSNS,
              "Opcode %d is outside the range of valid values\n", op);
     return this->usedInsns[op];
   }
 
-  virtual size_t getBytecodeSize(void)
-  {
-    return this->bc_size;
-  };
+  virtual size_t getBytecodeSize(void) { return this->bc_size; };
 
-  virtual size_t getMaxStackHeight(void)
-  {
-    return this->maxStackHeight;
-  };
+  virtual size_t getMaxStackHeight(void) { return this->maxStackHeight; };
 
   JavaMethod *parent;
+
 protected:
-  void markOpcodeUsed(mips_opcode_t op)
-  {
+  void markOpcodeUsed(mips_opcode_t op) {
     panic_if(op < 0 || op > N_INSNS,
              "Opcode %d is outside the range of valid values\n", op);
     this->usedInsns[op] = 1;
@@ -97,11 +79,9 @@ protected:
   uint8_t usedInsns[N_INSNS];
 };
 
-class StartFunction : public Function
-{
+class StartFunction : public Function {
 public:
-  StartFunction(const char *name, Instruction **insns,
-                int first, int last);
+  StartFunction(const char *name, Instruction **insns, int first, int last);
 
   bool pass1();
 };

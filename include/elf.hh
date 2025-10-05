@@ -17,8 +17,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#include <libelf.h>
 #include <elfutils/libdw.h>
+#include <libelf.h>
 
 #include <cpp-utils.hh>
 
@@ -26,23 +26,22 @@ using namespace std;
 
 #if !defined(R_MIPS_NONE) // e.g. Cygwin
 
-#define R_MIPS_NONE       0
-#define R_MIPS_16         1
-#define R_MIPS_32         2
-#define R_MIPS_REL32      3
-#define R_MIPS_26         4
-#define R_MIPS_HI16       5
-#define R_MIPS_LO16       6
+#define R_MIPS_NONE 0
+#define R_MIPS_16 1
+#define R_MIPS_32 2
+#define R_MIPS_REL32 3
+#define R_MIPS_26 4
+#define R_MIPS_HI16 5
+#define R_MIPS_LO16 6
 
 #endif
 
 class CibylElf;
 
-class ElfSymbol
-{
+class ElfSymbol {
 public:
-  ElfSymbol(int index, int binding, uint32_t addr, uint32_t size, int type, const char *name)
-  {
+  ElfSymbol(int index, int binding, uint32_t addr, uint32_t size, int type,
+            const char *name) {
     this->index = index;
     this->binding = binding;
     this->addr = addr;
@@ -66,12 +65,9 @@ public:
   int n_args;
 };
 
-
-class ElfReloc
-{
+class ElfReloc {
 public:
-  ElfReloc(uint32_t addr, int type, ElfSymbol *sym)
-  {
+  ElfReloc(uint32_t addr, int type, ElfSymbol *sym) {
     this->addr = addr;
     this->type = type;
     this->sym = sym;
@@ -84,12 +80,10 @@ public:
   uint32_t addend;
 };
 
-class ElfSection
-{
+class ElfSection {
 public:
-  ElfSection(const char *name, uint8_t *data, size_t size,
-             int type, uint32_t align, uint32_t addr)
-  {
+  ElfSection(const char *name, uint8_t *data, size_t size, int type,
+             uint32_t align, uint32_t addr) {
     this->name = name;
     this->data = data;
     this->size = size;
@@ -99,22 +93,20 @@ public:
   }
 
   uint8_t *data;
-  size_t   size;
-  int      type;
+  size_t size;
+  int type;
   uint32_t align;
   uint32_t addr;
   const char *name;
 };
 
 /* Found in the special .cibylexpsyms function */
-typedef struct
-{
+typedef struct {
   uint32_t name;
   uint32_t addr;
 } cibyl_exported_symbol_t;
 
-class CibylElf
-{
+class CibylElf {
 public:
   static CibylElf *getInstance();
 
@@ -134,23 +126,21 @@ public:
 
   uint32_t getEntryPoint() { return this->entryPoint; }
 
-  const char *getCibylStrtabString(uint32_t offset)
-  {
+  const char *getCibylStrtabString(uint32_t offset) {
     /* This is safe since we assert that this section is there in
      * the constructor */
-    return ((const char*)this->getSection(".cibylstrtab")->data) + offset;
+    return ((const char *)this->getSection(".cibylstrtab")->data) + offset;
   }
 
-  ElfSection *getSection(const char *name)
-  {
+  ElfSection *getSection(const char *name) {
     return this->m_sectionsByName[name];
   }
 
   ElfReloc *getRelocationBySymbol(ElfSymbol *sym);
 
-  typedef map<uint32_t, ElfSymbol*> ElfSymbolTable_t;
-  typedef map<const char *, ElfSection*, cmp_str> ElfSectionTable_t;
-  typedef map<ElfSymbol *, ElfReloc*> ElfRelocationTable_t;
+  typedef map<uint32_t, ElfSymbol *> ElfSymbolTable_t;
+  typedef map<const char *, ElfSection *, cmp_str> ElfSectionTable_t;
+  typedef map<ElfSymbol *, ElfReloc *> ElfRelocationTable_t;
 
 private:
   void addSection(ElfSection *section);

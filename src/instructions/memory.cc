@@ -10,17 +10,15 @@
  *
  ********************************************************************/
 
-class MemoryXX : public Instruction
-{
- public:
-  MemoryXX(uint32_t address, int opcode,
-           MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : Instruction(address, opcode, rs, rt, R_ZERO, extra)
-    {
-      this->method = NULL;
-    }
+class MemoryXX : public Instruction {
+public:
+  MemoryXX(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+           int32_t extra)
+      : Instruction(address, opcode, rs, rt, R_ZERO, extra) {
+    this->method = NULL;
+  }
 
-  bool pass1()
-  {
+  bool pass1() {
     this->method = controller->getMethodByAddress(this->address);
 
     panic_if(!this->method, "No method for instruction at 0x%x\n",
@@ -29,157 +27,140 @@ class MemoryXX : public Instruction
     return true;
   }
 
-  virtual size_t getMaxStackHeight()
-  {
-    return 3;
-  }
+  virtual size_t getMaxStackHeight() { return 3; }
 
- protected:
+protected:
   JavaMethod *method;
 };
 
-class LoadXX : public MemoryXX
-{
+class LoadXX : public MemoryXX {
 public:
-  LoadXX(const char *what, uint32_t address, int opcode,
-	 MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : MemoryXX(address, opcode, rs, rt, extra)
-  {
+  LoadXX(const char *what, uint32_t address, int opcode, MIPS_register_t rs,
+         MIPS_register_t rt, int32_t extra)
+      : MemoryXX(address, opcode, rs, rt, extra) {
     this->bc = what;
   }
 
-  bool pass2()
-  {
-    emit->bc_pushaddress( this->rs, this->extra );
+  bool pass2() {
+    emit->bc_pushaddress(this->rs, this->extra);
     /* Either a call to a subroutine or a regular function call */
-    if ( config->optimizePartialMemoryOps &&
-         this->opcode != OP_LWL && this->opcode != OP_LWR)
+    if (config->optimizePartialMemoryOps && this->opcode != OP_LWL &&
+        this->opcode != OP_LWR)
       emit->bc_jsr("__CIBYL_memoryRead%s", this->bc);
     else
       emit->bc_invokestatic("%sCRunTime/memoryRead%s(I)I",
-          controller->getJasminPackagePath(), this->bc);
-    emit->bc_popregister( this->rt );
+                            controller->getJasminPackagePath(), this->bc);
+    emit->bc_popregister(this->rt);
     return true;
   }
 
-  int fillDestinations(int *p)
-  {
-    if ( config->optimizePartialMemoryOps )
-      return this->addToRegisterUsage(this->rt, p) + this->addToRegisterUsage(R_MADR, p);
+  int fillDestinations(int *p) {
+    if (config->optimizePartialMemoryOps)
+      return this->addToRegisterUsage(this->rt, p) +
+             this->addToRegisterUsage(R_MADR, p);
 
     return this->addToRegisterUsage(this->rt, p);
   }
 
-  int fillSources(int *p)
-  {
-    return this->addToRegisterUsage(this->rs, p) + this->addToRegisterUsage(R_MEM, p);
+  int fillSources(int *p) {
+    return this->addToRegisterUsage(this->rs, p) +
+           this->addToRegisterUsage(R_MEM, p);
   };
 
-  virtual size_t getBytecodeSize(void)
-  {
-    return 13;
-  };
+  virtual size_t getBytecodeSize(void) { return 13; };
+
 protected:
   const char *bc;
 };
 
-
-class StoreXX : public MemoryXX
-{
+class StoreXX : public MemoryXX {
 public:
-  StoreXX(const char *what, uint32_t address, int opcode,
-	  MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : MemoryXX(address, opcode, rs, rt, extra)
-  {
+  StoreXX(const char *what, uint32_t address, int opcode, MIPS_register_t rs,
+          MIPS_register_t rt, int32_t extra)
+      : MemoryXX(address, opcode, rs, rt, extra) {
     this->bc = what;
   }
 
-  bool pass2()
-  {
+  bool pass2() {
     if (config->traceStores)
       this->traceStore();
 
-    emit->bc_pushaddress( this->rs, this->extra );
-    emit->bc_pushregister( this->rt );
+    emit->bc_pushaddress(this->rs, this->extra);
+    emit->bc_pushregister(this->rt);
     emit->bc_invokestatic("%sCRunTime/memoryWrite%s(II)V",
-        controller->getJasminPackagePath(), this->bc);
+                          controller->getJasminPackagePath(), this->bc);
     return true;
   }
 
-  int fillSources(int *p)
-  {
-    return this->addToRegisterUsage(this->rs, p) + this->addToRegisterUsage(this->rt, p) + this->addToRegisterUsage(R_MEM, p);
+  int fillSources(int *p) {
+    return this->addToRegisterUsage(this->rs, p) +
+           this->addToRegisterUsage(this->rt, p) +
+           this->addToRegisterUsage(R_MEM, p);
   };
-protected:
 
-  void traceStore()
-  {
-    emit->bc_pushconst( this->address );
-    emit->bc_pushaddress( this->rs, this->extra );
-    emit->bc_pushregister( this->rt );
+protected:
+  void traceStore() {
+    emit->bc_pushconst(this->address);
+    emit->bc_pushaddress(this->rs, this->extra);
+    emit->bc_pushregister(this->rt);
 
     emit->bc_invokestatic("%sCRunTime/memoryWrite%sPc(III)V",
-        controller->getJasminPackagePath(), this->bc);
+                          controller->getJasminPackagePath(), this->bc);
   }
 
   const char *bc;
 };
 
-class LoadXXSigned : public LoadXX
-{
+class LoadXXSigned : public LoadXX {
 public:
-  LoadXXSigned(const char *what, const char *convert, uint32_t address, int opcode,
-	       MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : LoadXX(what, address, opcode, rs, rt, extra)
-  {
+  LoadXXSigned(const char *what, const char *convert, uint32_t address,
+               int opcode, MIPS_register_t rs, MIPS_register_t rt,
+               int32_t extra)
+      : LoadXX(what, address, opcode, rs, rt, extra) {
     this->convert = convert;
   }
 
-  bool pass2()
-  {
-    emit->bc_pushaddress( this->rs, this->extra );
+  bool pass2() {
+    emit->bc_pushaddress(this->rs, this->extra);
     emit->bc_invokestatic("%sCRunTime/memoryRead%s(I)I",
-        controller->getJasminPackagePath(), this->bc);
-    emit->bc_generic_insn( this->convert );
-    emit->bc_popregister( this->rt );
+                          controller->getJasminPackagePath(), this->bc);
+    emit->bc_generic_insn(this->convert);
+    emit->bc_popregister(this->rt);
     return true;
   }
+
 private:
   const char *convert;
 };
 
-class Lw : public LoadXX
-{
+class Lw : public LoadXX {
 public:
-  Lw(uint32_t address, int opcode,
-     MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : LoadXX("", address, opcode, rs, rt, extra)
-  {
-  }
+  Lw(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+     int32_t extra)
+      : LoadXX("", address, opcode, rs, rt, extra) {}
 
-  bool pass2()
-  {
+  bool pass2() {
     /* Skip stores to RA */
     if (this->rt == R_RA && !this->method->hasMultipleFunctions())
       return true;
 
     if (this->prefix)
       this->prefix->pass2();
-    emit->bc_pushregister( R_MEM );
-    emit->bc_pushindex( this->rs, this->extra );
+    emit->bc_pushregister(R_MEM);
+    emit->bc_pushindex(this->rs, this->extra);
     emit->bc_iaload();
-    emit->bc_popregister( this->rt );
+    emit->bc_popregister(this->rt);
     return true;
   }
 
-  virtual size_t getBytecodeSize(void)
-  {
-    return 11;
-  };
+  virtual size_t getBytecodeSize(void) { return 11; };
 };
 
-class PartialLoad : public LoadXX
-{
+class PartialLoad : public LoadXX {
 protected:
-  PartialLoad(int word_size, bool is_signed,  const char *what, uint32_t address, int opcode,
-              MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : LoadXX(what, address, opcode, rs, rt, extra)
-  {
+  PartialLoad(int word_size, bool is_signed, const char *what, uint32_t address,
+              int opcode, MIPS_register_t rs, MIPS_register_t rt, int32_t extra)
+      : LoadXX(what, address, opcode, rs, rt, extra) {
     this->word_size = word_size;
     this->is_signed = is_signed;
 
@@ -187,38 +168,33 @@ protected:
              "Emitting load of invalid length %d\n", this->word_size);
   }
 
-  bool pass2()
-  {
+  bool pass2() {
     JavaMethod *mt = controller->getMethodByAddress(this->getAddress());
 
-    panic_if(!mt,
-             "No method for instruction at 0x%x\n",
-             this->getAddress());
+    panic_if(!mt, "No method for instruction at 0x%x\n", this->getAddress());
 
-    if ( config->optimizePartialMemoryOps ||
-         !config->optimizeInlines)
+    if (config->optimizePartialMemoryOps || !config->optimizeInlines)
       return LoadXX::pass2();
-    if (mt->getBytecodeSize() > 32768)
-      {
-        static JavaMethod *warn_method = NULL;
+    if (mt->getBytecodeSize() > 32768) {
+      static JavaMethod *warn_method = NULL;
 
-        /* Bytecode size too large to allow for direct inlining,
-         * reverting to normal */
-        if (warn_method != mt)
-          emit->warning("Bytecode size for %s (%d) too large for inlining of lb/lh\n",
-                        mt->getName(), mt->getBytecodeSize());
-        warn_method = mt;
-        return LoadXX::pass2();
-      }
+      /* Bytecode size too large to allow for direct inlining,
+       * reverting to normal */
+      if (warn_method != mt)
+        emit->warning(
+            "Bytecode size for %s (%d) too large for inlining of lb/lh\n",
+            mt->getName(), mt->getBytecodeSize());
+      warn_method = mt;
+      return LoadXX::pass2();
+    }
 
     int b_v = 3; /* Assume lb(u) */
     unsigned int mask_val = 0xff;
 
-    if (this->word_size == 16)
-      {
-        b_v = 2;
-        mask_val = 0xffff;
-      }
+    if (this->word_size == 16) {
+      b_v = 2;
+      mask_val = 0xffff;
+    }
     /* Maybe skip ra */
     if (this->rt == R_RA && !this->method->hasMultipleFunctions())
       return true;
@@ -232,11 +208,10 @@ protected:
     /* b = 3 - (address & 3) */
     emit->bc_pushconst(b_v);
     emit->bc_pushregister(this->rs);
-    if (this->extra != 0)
-      {
-        emit->bc_pushconst(extra);
-        emit->bc_iadd();
-      }
+    if (this->extra != 0) {
+      emit->bc_pushconst(extra);
+      emit->bc_iadd();
+    }
     emit->bc_pushconst(b_v);
     emit->bc_iand();
     emit->bc_isub();
@@ -254,74 +229,62 @@ protected:
     else if (this->word_size == 16 && this->is_signed) /* lh */
       emit->bc_i2s();
     else /* lbu */
-      {
-        emit->bc_pushconst(mask_val);
-        emit->bc_iand();
-      }
-    emit->bc_popregister( this->rt );
+    {
+      emit->bc_pushconst(mask_val);
+      emit->bc_iand();
+    }
+    emit->bc_popregister(this->rt);
 
     return true;
   }
 
-  virtual size_t getBytecodeSize(void)
-  {
-    return 24;
-  };
+  virtual size_t getBytecodeSize(void) { return 24; };
 
-  virtual size_t getMaxStackHeight()
-  {
-    return 5;
-  }
+  virtual size_t getMaxStackHeight() { return 5; }
+
 protected:
   int word_size;
   bool is_signed;
 };
 
-
-class PartialStore : public StoreXX
-{
+class PartialStore : public StoreXX {
 protected:
-  PartialStore(int word_size,  const char *what, uint32_t address, int opcode,
-               MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : StoreXX(what, address, opcode, rs, rt, extra)
-  {
+  PartialStore(int word_size, const char *what, uint32_t address, int opcode,
+               MIPS_register_t rs, MIPS_register_t rt, int32_t extra)
+      : StoreXX(what, address, opcode, rs, rt, extra) {
     this->word_size = word_size;
 
     panic_if(this->word_size != 8 && this->word_size != 16,
              "Emitting store of invalid length %d\n", this->word_size);
   }
 
-  bool pass2()
-  {
+  bool pass2() {
     JavaMethod *mt = controller->getMethodByAddress(this->getAddress());
 
-    panic_if(!mt,
-             "No method for instruction at 0x%x\n",
-             this->getAddress());
+    panic_if(!mt, "No method for instruction at 0x%x\n", this->getAddress());
 
-    if ( config->optimizePartialMemoryOps ||
-         !config->optimizeInlines)
+    if (config->optimizePartialMemoryOps || !config->optimizeInlines)
       return StoreXX::pass2();
-    if (mt->getBytecodeSize() > 32768)
-      {
-        static JavaMethod *warn_method = NULL;
+    if (mt->getBytecodeSize() > 32768) {
+      static JavaMethod *warn_method = NULL;
 
-        /* Bytecode size too large to allow for direct inlining,
-         * reverting to normal */
-        if (warn_method != mt)
-          emit->warning("Bytecode size for %s (%d) too large for inlining of sb/sh\n",
-                        mt->getName(), mt->getBytecodeSize());
-        warn_method = mt;
-        return StoreXX::pass2();
-      }
+      /* Bytecode size too large to allow for direct inlining,
+       * reverting to normal */
+      if (warn_method != mt)
+        emit->warning(
+            "Bytecode size for %s (%d) too large for inlining of sb/sh\n",
+            mt->getName(), mt->getBytecodeSize());
+      warn_method = mt;
+      return StoreXX::pass2();
+    }
 
     int b_v = 3; /* Assume lb(u) */
     unsigned int mask_val = 0xff;
 
-    if (this->word_size == 16)
-      {
-        b_v = 2;
-        mask_val = 0xffff;
-      }
+    if (this->word_size == 16) {
+      b_v = 2;
+      mask_val = 0xffff;
+    }
     /* Maybe skip ra */
     if (this->rt == R_RA && !this->method->hasMultipleFunctions())
       return true;
@@ -338,11 +301,10 @@ protected:
     /* b = 3 - (address & 3) */
     emit->bc_pushconst(b_v);
     emit->bc_pushregister(this->rs);
-    if (this->extra != 0)
-      {
-        emit->bc_pushconst(extra);
-        emit->bc_iadd();
-      }
+    if (this->extra != 0) {
+      emit->bc_pushconst(extra);
+      emit->bc_iadd();
+    }
     emit->bc_pushconst(b_v);
     emit->bc_iand();
     emit->bc_isub();
@@ -362,7 +324,7 @@ protected:
 
     /* cur |= ((rt & 0xff) << b) */
     emit->bc_swap();
-    emit->bc_pushregister( this->rt );
+    emit->bc_pushregister(this->rt);
     emit->bc_pushconst(mask_val);
     emit->bc_iand();
     emit->bc_swap();
@@ -375,87 +337,65 @@ protected:
     return true;
   }
 
-  virtual size_t getBytecodeSize(void)
-  {
-    return 32;
-  };
+  virtual size_t getBytecodeSize(void) { return 32; };
 
-  virtual size_t getMaxStackHeight()
-  {
-    return 8;
-  }
+  virtual size_t getMaxStackHeight() { return 8; }
 
 protected:
   int word_size;
   bool is_signed;
 };
 
-
-class Lbu : public PartialLoad
-{
+class Lbu : public PartialLoad {
 public:
-  Lbu(uint32_t address, int opcode,
-      MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : PartialLoad(8, false, "ByteUnsigned", address, opcode, rs, rt, extra)
-  {
-  }
+  Lbu(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+      int32_t extra)
+      : PartialLoad(8, false, "ByteUnsigned", address, opcode, rs, rt, extra) {}
 };
 
-class Lb : public PartialLoad
-{
+class Lb : public PartialLoad {
 public:
-  Lb(uint32_t address, int opcode,
-     MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : PartialLoad(8, true, "Byte", address, opcode, rs, rt, extra)
-  {
-  }
+  Lb(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+     int32_t extra)
+      : PartialLoad(8, true, "Byte", address, opcode, rs, rt, extra) {}
 };
 
-class Lhu : public PartialLoad
-{
+class Lhu : public PartialLoad {
 public:
-  Lhu(uint32_t address, int opcode,
-      MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : PartialLoad(16, false, "ShortUnsigned", address, opcode, rs, rt, extra)
-  {
-  }
+  Lhu(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+      int32_t extra)
+      : PartialLoad(16, false, "ShortUnsigned", address, opcode, rs, rt,
+                    extra) {}
 };
 
-class Lh : public PartialLoad
-{
+class Lh : public PartialLoad {
 public:
-  Lh(uint32_t address, int opcode,
-     MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : PartialLoad(16, true, "Short", address, opcode, rs, rt, extra)
-  {
-  }
+  Lh(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+     int32_t extra)
+      : PartialLoad(16, true, "Short", address, opcode, rs, rt, extra) {}
 };
 
-
-class Sb : public PartialStore
-{
+class Sb : public PartialStore {
 public:
-  Sb(uint32_t address, int opcode,
-     MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : PartialStore(8, "Byte", address, opcode, rs, rt, extra)
-  {
-  }
+  Sb(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+     int32_t extra)
+      : PartialStore(8, "Byte", address, opcode, rs, rt, extra) {}
 };
 
-class Sh : public PartialStore
-{
+class Sh : public PartialStore {
 public:
-  Sh(uint32_t address, int opcode,
-     MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : PartialStore(16, "Short", address, opcode, rs, rt, extra)
-  {
-  }
+  Sh(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+     int32_t extra)
+      : PartialStore(16, "Short", address, opcode, rs, rt, extra) {}
 };
 
-class Sw : public StoreXX
-{
+class Sw : public StoreXX {
 public:
-  Sw(uint32_t address, int opcode,
-     MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : StoreXX("Word", address, opcode, rs, rt, extra)
-  {
-  }
+  Sw(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+     int32_t extra)
+      : StoreXX("Word", address, opcode, rs, rt, extra) {}
 
-  bool pass2()
-  {
+  bool pass2() {
     /* Skip stores to RA */
     if (this->rt == R_RA && !this->method->hasMultipleFunctions())
       return true;
@@ -465,48 +405,43 @@ public:
 
     if (this->prefix)
       this->prefix->pass2();
-    emit->bc_pushregister( R_MEM );
-    emit->bc_pushindex( this->rs, this->extra );
-    emit->bc_pushregister( this->rt );
+    emit->bc_pushregister(R_MEM);
+    emit->bc_pushindex(this->rs, this->extra);
+    emit->bc_pushregister(this->rt);
     emit->bc_iastore();
     return true;
   }
 
-  virtual size_t getBytecodeSize(void)
-  {
-    return 11;
-  };
+  virtual size_t getBytecodeSize(void) { return 11; };
 };
 
-class LWc1 : public LoadXX
-{
+class LWc1 : public LoadXX {
 public:
-  LWc1(uint32_t address, int opcode,
-       MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : LoadXX("", address, opcode, rs, rt, extra)
-  {
+  LWc1(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+       int32_t extra)
+      : LoadXX("", address, opcode, rs, rt, extra) {
     panic_if(rt < R_F0 || rt > R_F31,
-             "LWc1 at 0x%x called with non-float %d as argument\n", this->address, rt);
+             "LWc1 at 0x%x called with non-float %d as argument\n",
+             this->address, rt);
   }
 
-  bool pass2()
-  {
+  bool pass2() {
     emit->warning("Instruction LWc1 not yet implemented\n");
     return true;
   }
 };
 
-class SWc1 : public StoreXX
-{
+class SWc1 : public StoreXX {
 public:
-  SWc1(uint32_t address, int opcode,
-       MIPS_register_t rs, MIPS_register_t rt, int32_t extra) : StoreXX("", address, opcode, rs, rt, extra)
-  {
+  SWc1(uint32_t address, int opcode, MIPS_register_t rs, MIPS_register_t rt,
+       int32_t extra)
+      : StoreXX("", address, opcode, rs, rt, extra) {
     panic_if(rt < R_F0 || rt > R_F31,
-             "SWc1 at 0x%x called with non-float %d as argument\n", this->address, rt);
+             "SWc1 at 0x%x called with non-float %d as argument\n",
+             this->address, rt);
   }
 
-  bool pass2()
-  {
+  bool pass2() {
     emit->warning("Instruction SWc1 not yet implemented\n");
     return true;
   }

@@ -9,26 +9,20 @@
  * $Id:$
  *
  ********************************************************************/
-#include <javamethod.hh>
-#include <controller.hh>
 #include <builtins.hh>
+#include <controller.hh>
 #include <emit.hh>
+#include <javamethod.hh>
 
-class Arithmetic1 : public Builtin
-{
+class Arithmetic1 : public Builtin {
 public:
-  Arithmetic1(const char *name, const char *bc) : Builtin(name)
-  {
+  Arithmetic1(const char *name, const char *bc) : Builtin(name) {
     this->bc = bc;
   }
 
-  bool pass1(Instruction *insn)
-  {
-    return true;
-  }
+  bool pass1(Instruction *insn) { return true; }
 
-  bool pass2(Instruction *insn)
-  {
+  bool pass2(Instruction *insn) {
     /* Convert the source register */
     emit->bc_pushregister(R_A0);
     emit->bc_invokestatic("java/lang/Float/intBitsToFloat(I)F");
@@ -42,35 +36,23 @@ public:
     return true;
   }
 
-  int fillSources(int *p)
-  {
-    return this->addToRegisterUsage(R_A0, p);
-  };
+  int fillSources(int *p) { return this->addToRegisterUsage(R_A0, p); };
 
-  int fillDestinations(int *p)
-  {
-    return this->addToRegisterUsage(R_V0, p);
-  };
+  int fillDestinations(int *p) { return this->addToRegisterUsage(R_V0, p); };
+
 private:
   const char *bc;
 };
 
-
-class Arithmetic2 : public Builtin
-{
+class Arithmetic2 : public Builtin {
 public:
-  Arithmetic2(const char *name, const char *bc) : Builtin(name)
-  {
+  Arithmetic2(const char *name, const char *bc) : Builtin(name) {
     this->bc = bc;
   }
 
-  bool pass1(Instruction *insn)
-  {
-    return true;
-  }
+  bool pass1(Instruction *insn) { return true; }
 
-  bool pass2(Instruction *insn)
-  {
+  bool pass2(Instruction *insn) {
     /* Convert the source registers */
     emit->bc_pushregister(R_A0);
     emit->bc_invokestatic("java/lang/Float/intBitsToFloat(I)F");
@@ -86,35 +68,24 @@ public:
     return true;
   }
 
-  int fillSources(int *p)
-  {
-    return this->addToRegisterUsage(R_A0, p) + this->addToRegisterUsage(R_A1, p);
+  int fillSources(int *p) {
+    return this->addToRegisterUsage(R_A0, p) +
+           this->addToRegisterUsage(R_A1, p);
   };
 
-  int fillDestinations(int *p)
-  {
-    return this->addToRegisterUsage(R_V0, p);
-  };
+  int fillDestinations(int *p) { return this->addToRegisterUsage(R_V0, p); };
+
 private:
   const char *bc;
 };
 
-
-class Compare : public Builtin
-{
+class Compare : public Builtin {
 public:
-  Compare(const char *name, const char *bc) : Builtin(name)
-  {
-    this->bc = bc;
-  }
+  Compare(const char *name, const char *bc) : Builtin(name) { this->bc = bc; }
 
-  bool pass1(Instruction *insn)
-  {
-    return true;
-  }
+  bool pass1(Instruction *insn) { return true; }
 
-  bool pass2(Instruction *insn)
-  {
+  bool pass2(Instruction *insn) {
     /* Convert the source registers */
     emit->bc_pushregister(R_A0);
     emit->bc_invokestatic("java/lang/Float/intBitsToFloat(I)F");
@@ -129,34 +100,24 @@ public:
     return true;
   }
 
-  int fillSources(int *p)
-  {
-    return this->addToRegisterUsage(R_A0, p) + this->addToRegisterUsage(R_A1, p);
+  int fillSources(int *p) {
+    return this->addToRegisterUsage(R_A0, p) +
+           this->addToRegisterUsage(R_A1, p);
   };
 
-  int fillDestinations(int *p)
-  {
-    return this->addToRegisterUsage(R_V0, p);
-  };
+  int fillDestinations(int *p) { return this->addToRegisterUsage(R_V0, p); };
+
 private:
   const char *bc;
 };
 
-
-class IntToFloat : public Builtin
-{
+class IntToFloat : public Builtin {
 public:
-  IntToFloat(const char *name) : Builtin(name)
-  {
-  }
+  IntToFloat(const char *name) : Builtin(name) {}
 
-  bool pass1(Instruction *insn)
-  {
-    return true;
-  }
+  bool pass1(Instruction *insn) { return true; }
 
-  bool pass2(Instruction *insn)
-  {
+  bool pass2(Instruction *insn) {
     /* Convert the source register */
     emit->bc_pushregister(R_A0);
     emit->bc_i2f();
@@ -167,34 +128,21 @@ public:
     return true;
   }
 
-  int fillSources(int *p)
-  {
-    return this->addToRegisterUsage(R_A0, p);
-  };
+  int fillSources(int *p) { return this->addToRegisterUsage(R_A0, p); };
 
-  int fillDestinations(int *p)
-  {
-    return this->addToRegisterUsage(R_V0, p);
-  };
+  int fillDestinations(int *p) { return this->addToRegisterUsage(R_V0, p); };
+
 private:
   const char *bc;
 };
 
-
-class FloatToInt : public Builtin
-{
+class FloatToInt : public Builtin {
 public:
-  FloatToInt(const char *name) : Builtin(name)
-  {
-  }
+  FloatToInt(const char *name) : Builtin(name) {}
 
-  bool pass1(Instruction *insn)
-  {
-    return true;
-  }
+  bool pass1(Instruction *insn) { return true; }
 
-  bool pass2(Instruction *insn)
-  {
+  bool pass2(Instruction *insn) {
     /* Convert the source register */
     emit->bc_pushregister(R_A0);
     emit->bc_invokestatic("java/lang/Float/intBitsToFloat(I)F");
@@ -205,15 +153,10 @@ public:
     return true;
   }
 
-  int fillSources(int *p)
-  {
-    return this->addToRegisterUsage(R_A0, p);
-  };
+  int fillSources(int *p) { return this->addToRegisterUsage(R_A0, p); };
 
-  int fillDestinations(int *p)
-  {
-    return this->addToRegisterUsage(R_V0, p);
-  };
+  int fillDestinations(int *p) { return this->addToRegisterUsage(R_V0, p); };
+
 private:
   const char *bc;
 };

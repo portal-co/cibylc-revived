@@ -12,11 +12,10 @@
 #ifndef __SYSCALL_WRAPPERS_HH__
 #define __SYSCALL_WRAPPERS_HH__
 
-#include <syscall.hh>
 #include <controller.hh>
+#include <syscall.hh>
 
-class SyscallWrapperGenerator
-{
+class SyscallWrapperGenerator {
 public:
   /**
    * Create a new syscall wrapper generator.
@@ -43,7 +42,7 @@ private:
 
   const char *lookupFilePath(const char *filename);
 
-  void doOneArgumentGet(cibyl_db_entry_t *p, cibyl_db_arg_t *a );
+  void doOneArgumentGet(cibyl_db_entry_t *p, cibyl_db_arg_t *a);
 
   void doOne(cibyl_db_entry_t *p);
 
@@ -53,8 +52,7 @@ private:
 
   void generateHelperClasses();
 
-  void doOneNonGenerated(const char *dirname,
-                         cibyl_db_entry_t *p);
+  void doOneNonGenerated(const char *dirname, cibyl_db_entry_t *p);
 
   const char **defines;
   const char *m_dstdir;

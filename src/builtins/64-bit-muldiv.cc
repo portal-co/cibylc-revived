@@ -9,39 +9,34 @@
  * $Id:$
  *
  ********************************************************************/
-#include <javamethod.hh>
-#include <controller.hh>
 #include <builtins.hh>
+#include <controller.hh>
 #include <emit.hh>
+#include <javamethod.hh>
 
 extern Instruction *tryInstruction;
 
-class MulDivBuiltinBase : public Builtin
-{
+class MulDivBuiltinBase : public Builtin {
 public:
-  MulDivBuiltinBase(const char *name, const char *bc) : Builtin(name)
-  {
+  MulDivBuiltinBase(const char *name, const char *bc) : Builtin(name) {
     this->bc = bc;
   }
 
-  bool pass1(Instruction *insn)
-  {
-    return true;
-  }
+  bool pass1(Instruction *insn) { return true; }
 
-  int fillSources(int *p)
-  {
-    return this->addToRegisterUsage(R_A0, p) + this->addToRegisterUsage(R_A1, p) +
-      this->addToRegisterUsage(R_A2, p) + this->addToRegisterUsage(R_A3, p);
+  int fillSources(int *p) {
+    return this->addToRegisterUsage(R_A0, p) +
+           this->addToRegisterUsage(R_A1, p) +
+           this->addToRegisterUsage(R_A2, p) +
+           this->addToRegisterUsage(R_A3, p);
   };
 
-  int fillDestinations(int *p)
-  {
-    return this->addToRegisterUsage(R_V0, p) + this->addToRegisterUsage(R_V1, p);
+  int fillDestinations(int *p) {
+    return this->addToRegisterUsage(R_V0, p) +
+           this->addToRegisterUsage(R_V1, p);
   };
 
-  bool pass2(Instruction *insn)
-  {
+  bool pass2(Instruction *insn) {
     /* Concatenate the first and second parameters */
     this->push_64_bit_from_32_bit_regs(R_A1, R_A0);
     this->push_64_bit_from_32_bit_regs(R_A3, R_A2);
@@ -58,13 +53,12 @@ public:
 
     emit->bc_l2i();
     emit->bc_popregister(R_V1);
-    
+
     return true;
   }
-  
+
 protected:
-  void push_64_bit_from_32_bit_regs(MIPS_register_t r1, MIPS_register_t r2)
-  {
+  void push_64_bit_from_32_bit_regs(MIPS_register_t r1, MIPS_register_t r2) {
     emit->bc_pushregister(r1);
     emit->bc_i2l();
     emit->bc_pushregister(r2);
@@ -73,35 +67,26 @@ protected:
     emit->bc_lshl();
     emit->bc_lor();
   }
-  
+
   const char *bc;
 };
 
-class DivBuiltin : public MulDivBuiltinBase
-{
+class DivBuiltin : public MulDivBuiltinBase {
 public:
-  DivBuiltin(const char *name) : MulDivBuiltinBase(name, "ldiv")
-  {
-  }  
+  DivBuiltin(const char *name) : MulDivBuiltinBase(name, "ldiv") {}
 };
 
-class ModBuiltin : public MulDivBuiltinBase
-{
+class ModBuiltin : public MulDivBuiltinBase {
 public:
-  ModBuiltin(const char *name) : MulDivBuiltinBase(name, "lrem")
-  {
-  }  
+  ModBuiltin(const char *name) : MulDivBuiltinBase(name, "lrem") {}
 };
 
-class ShiftBuiltinBase : public MulDivBuiltinBase
-{
+class ShiftBuiltinBase : public MulDivBuiltinBase {
 public:
-  ShiftBuiltinBase(const char *name, const char *bc) : MulDivBuiltinBase(name, bc)
-  {
-  }  
+  ShiftBuiltinBase(const char *name, const char *bc)
+      : MulDivBuiltinBase(name, bc) {}
 
-  bool pass2(Instruction *insn)
-  {
+  bool pass2(Instruction *insn) {
     /* Concatenate the first and second parameters */
     this->push_64_bit_from_32_bit_regs(R_A1, R_A0);
     emit->bc_pushregister(R_A2);
@@ -118,23 +103,17 @@ public:
 
     emit->bc_l2i();
     emit->bc_popregister(R_V1);
-    
+
     return true;
   }
 };
 
-class ShrBuiltin : public ShiftBuiltinBase
-{
+class ShrBuiltin : public ShiftBuiltinBase {
 public:
-  ShrBuiltin(const char *name) : ShiftBuiltinBase(name, "lshr")
-  {
-  }  
+  ShrBuiltin(const char *name) : ShiftBuiltinBase(name, "lshr") {}
 };
 
-class ShlBuiltin : public ShiftBuiltinBase
-{
+class ShlBuiltin : public ShiftBuiltinBase {
 public:
-  ShlBuiltin(const char *name) : ShiftBuiltinBase(name, "lshl")
-  {
-  }
+  ShlBuiltin(const char *name) : ShiftBuiltinBase(name, "lshl") {}
 };

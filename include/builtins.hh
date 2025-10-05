@@ -14,41 +14,27 @@
 
 #include <instruction.hh>
 
-class Builtin : public Entity
-{
+class Builtin : public Entity {
 public:
-  Builtin(const char *name) : Entity()
-  {
-    this->name = name;
-  }
+  Builtin(const char *name) : Entity() { this->name = name; }
 
   virtual ~Builtin();
 
-  const char *getName()
-  {
-    return this->name;
-  }
+  const char *getName() { return this->name; }
 
   virtual bool pass1(Instruction *base) = 0;
 
   virtual bool pass2(Instruction *base) = 0;
 
-  virtual int fillDestinations(int *p)
-  {
-    return 0;
-  };
+  virtual int fillDestinations(int *p) { return 0; };
 
-  virtual int fillSources(int *p)
-  {
-    return 0;
-  };
+  virtual int fillSources(int *p) { return 0; };
 
 private:
   const char *name;
 };
 
-class BuiltinFactory
-{
+class BuiltinFactory {
 public:
   BuiltinFactory();
 

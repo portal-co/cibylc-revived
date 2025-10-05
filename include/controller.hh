@@ -14,11 +14,11 @@
 
 #include <map>
 
-#include <javamethod.hh>
-#include <javaclass.hh>
-#include <elf.hh>
 #include <builtins.hh>
+#include <elf.hh>
 #include <functioncolocation.hh>
+#include <javaclass.hh>
+#include <javamethod.hh>
 
 #include <cpp-utils.hh>
 
@@ -26,12 +26,11 @@
 
 using namespace std;
 
-class Controller : public CodeBlock
-{
+class Controller : public CodeBlock {
 public:
-  Controller(const char *argv0, const char **defines,
-             const char *dstdir, const char *elf_filename,
-             int n_dbs, const char **database_filenames);
+  Controller(const char *argv0, const char **defines, const char *dstdir,
+             const char *elf_filename, int n_dbs,
+             const char **database_filenames);
 
   bool pass0();
   bool pass1();
@@ -42,17 +41,13 @@ public:
   JavaMethod *getCallTableMethod();
   Syscall *getSyscall(uint32_t value);
 
-  const char *getDstDir()
-  {
-    return this->dstdir;
-  }
+  const char *getDstDir() { return this->dstdir; }
   /**
    * Set the instruction currently being compiled
    *
    * @param insn the instruction being compiled
    */
-  void setCurrentInstruction(Instruction *insn)
-  {
+  void setCurrentInstruction(Instruction *insn) {
     this->currentInstruction = insn;
   }
 
@@ -61,18 +56,13 @@ public:
    *
    * @return the instruction being compiled
    */
-  Instruction* getCurrentInstruction()
-  {
-    return this->currentInstruction;
-  }
+  Instruction *getCurrentInstruction() { return this->currentInstruction; }
 
-  Builtin *matchBuiltin(Instruction *insn, const char *name)
-  {
+  Builtin *matchBuiltin(Instruction *insn, const char *name) {
     return this->builtins->match(insn, name);
   }
 
-  JavaClass *getClassByMethodName(const char *name)
-  {
+  JavaClass *getClassByMethodName(const char *name) {
     panic_if(!name, "method name is NULL");
 
     return this->m_method_to_class[name];
@@ -84,13 +74,9 @@ public:
 
   Instruction *popTryStack();
 
-  const char *getPackageName()
-  {
-    return this->package_name;
-  }
+  const char *getPackageName() { return this->package_name; }
 
-  const char *getJasminPackagePath()
-  {
+  const char *getJasminPackagePath() {
     if (this->jasmin_package_path[0] == '\0')
       return "";
     return this->jasmin_package_path;
@@ -104,7 +90,6 @@ public:
   typedef map<const char *, cibyl_db_entry_t *, cmp_str> CibylDbTable_t;
 
 private:
-
   void allocateClasses();
 
   char *resolveStrtabAddress(char *strtab, char *offset);

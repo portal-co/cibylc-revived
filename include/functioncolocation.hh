@@ -19,8 +19,7 @@ using namespace std;
 #include "function.hh"
 #include "javamethod.hh"
 
-class FunctionColocation
-{
+class FunctionColocation {
 public:
   FunctionColocation(const char *str);
 
@@ -31,7 +30,7 @@ public:
   static FunctionColocation *lookup(const char *fn_name);
 
 private:
-  static map<const char *, FunctionColocation *, cmp_str>name_to_coloc;
+  static map<const char *, FunctionColocation *, cmp_str> name_to_coloc;
 
   Function **fns;
   const char **fn_names;

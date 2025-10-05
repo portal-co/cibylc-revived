@@ -10,45 +10,22 @@
  *
  ********************************************************************/
 
-class Nop : public Instruction
-{
+class Nop : public Instruction {
 public:
-  Nop(uint32_t address) : Instruction(address, 0, R_ZERO, R_ZERO, R_ZERO, 0)
-  {
-  }
+  Nop(uint32_t address) : Instruction(address, 0, R_ZERO, R_ZERO, R_ZERO, 0) {}
 
-  virtual bool isNop()
-  {
-    return true;
-  }
+  virtual bool isNop() { return true; }
 
-  bool pass1()
-  {
-    return true;
-  }
+  bool pass1() { return true; }
 
-  bool pass2()
-  {
-    return true;
-  }
+  bool pass2() { return true; }
 
-  int toString(char *dst, size_t n = 255)
-  {
-    return snprintf(dst, n, " ");
-  }
+  int toString(char *dst, size_t n = 255) { return snprintf(dst, n, " "); }
 };
 
-
-
-class DelaySlotNop : public Nop
-{
+class DelaySlotNop : public Nop {
 public:
-  DelaySlotNop(uint32_t address) : Nop(address)
-  {
-  }
+  DelaySlotNop(uint32_t address) : Nop(address) {}
 
-  bool isDelaySlotNop()
-  {
-    return true;
-  }
+  bool isDelaySlotNop() { return true; }
 };

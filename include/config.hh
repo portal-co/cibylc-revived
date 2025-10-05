@@ -14,11 +14,9 @@
 
 #include <stdint.h>
 
-class Config
-{
+class Config {
 public:
-  Config()
-  {
+  Config() {
     this->traceRange[0] = 0;
     this->traceRange[1] = 0;
     this->traceStores = false;

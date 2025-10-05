@@ -16,26 +16,24 @@
 #include <string.h>
 #include <utils.h>
 
-#define CIBYL_DB_QUALIFIER_THROWS         1
-#define CIBYL_DB_QUALIFIER_NOT_GENERATED  2
+#define CIBYL_DB_QUALIFIER_THROWS 1
+#define CIBYL_DB_QUALIFIER_NOT_GENERATED 2
 
-#define CIBYL_DB_RETURN_VOID    0
-#define CIBYL_DB_RETURN_INT     1
+#define CIBYL_DB_RETURN_VOID 0
+#define CIBYL_DB_RETURN_INT 1
 #define CIBYL_DB_RETURN_BOOLEAN 2
-#define CIBYL_DB_RETURN_OBJREF  3
+#define CIBYL_DB_RETURN_OBJREF 3
 
 #define CIBYL_DB_ARG_OBJREF 1
 
-typedef struct
-{
+typedef struct {
   unsigned long flags;
   char *javaType;
   char *type;
   char *name;
 } cibyl_db_arg_t;
 
-typedef struct
-{
+typedef struct {
   unsigned long nr;
   unsigned long returns;
   unsigned long nrArgs;
@@ -49,8 +47,7 @@ typedef struct
   unsigned long user;
 } cibyl_db_entry_t;
 
-class Syscall
-{
+class Syscall {
 public:
   Syscall(const char *name, int nrArguments, char returnValue);
 

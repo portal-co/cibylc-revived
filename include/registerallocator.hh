@@ -16,8 +16,7 @@
 
 class Instruction;
 
-class RegisterAllocator
-{
+class RegisterAllocator {
 public:
   RegisterAllocator();
 
@@ -27,17 +26,13 @@ public:
 
   const char *regToStatic(MIPS_register_t reg);
 
-  bool regIsAllocated(MIPS_register_t reg)
-  {
+  bool regIsAllocated(MIPS_register_t reg) {
     return (mips_to_local[reg] != -1);
   }
 
   int regToLocal(MIPS_register_t reg);
 
-  int getNumberOfLocals()
-  {
-    return this->n_locals;
-  }
+  int getNumberOfLocals() { return this->n_locals; }
 
 private:
   int mips_to_local[N_REGS];

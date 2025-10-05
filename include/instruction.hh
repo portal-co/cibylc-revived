@@ -12,60 +12,37 @@
 #ifndef __INSTRUCTION_HH__
 #define __INSTRUCTION_HH__
 
+#include <entity.hh>
 #include <mips.hh>
 #include <registerallocator.hh>
 #include <syscall.hh>
-#include <entity.hh>
 
 class JavaClass;
 class BasicBlock;
 class Function;
-struct InstructionBase: public Entity{
+struct InstructionBase : public Entity {
   virtual ~InstructionBase();
 
-  virtual bool isBranch()
-  {
-    return false;
-  }
+  virtual bool isBranch() { return false; }
 
-  virtual bool isReturnJump()
-  {
-    return false;
-  }
+  virtual bool isReturnJump() { return false; }
 
-  virtual bool isRegisterIndirectJump()
-  {
-    return false;
-  }
+  virtual bool isRegisterIndirectJump() { return false; }
 
-
-
-  virtual bool isNop()
-  {
-    return false;
-  }
+  virtual bool isNop() { return false; }
 
   virtual bool pass1() = 0;
 
   virtual bool pass2() = 0;
 
-  virtual size_t getMaxStackHeight()
-  {
-    return 2;
-  }
+  virtual size_t getMaxStackHeight() { return 2; }
 
-  virtual bool hasDelaySlot()
-  {
-    return this->isBranch();
-  }
+  virtual bool hasDelaySlot() { return this->isBranch(); }
 
   /* Delay slot instructions are "appended" to the parent
    * instruction. A special class denotes delay slot nops to handle
    * e.g., labels on delay slots */
-  virtual bool isDelaySlotNop()
-  {
-    return false;
-  }
+  virtual bool isDelaySlotNop() { return false; }
 
   /**
    * Fill in the register destinations
@@ -78,56 +55,30 @@ struct InstructionBase: public Entity{
 
   virtual int fillSources(int *p) { return 0; };
 };
-class Instruction : public InstructionBase
-{
+class Instruction : public InstructionBase {
 public:
-  Instruction(uint32_t address, int opcode,
-	      MIPS_register_t rs, MIPS_register_t rt, MIPS_register_t rd, int32_t extra);
+  Instruction(uint32_t address, int opcode, MIPS_register_t rs,
+              MIPS_register_t rt, MIPS_register_t rd, int32_t extra);
 
   virtual ~Instruction();
 
+  mips_opcode_t getOpcode() { return (mips_opcode_t)this->opcode; }
 
-  mips_opcode_t getOpcode()
-  {
-    return (mips_opcode_t)this->opcode;
-  }
-
-  bool isBranchTarget()
-  {
-    return this->branchTarget;
-  }
+  bool isBranchTarget() { return this->branchTarget; }
 
   void setBranchTarget();
 
-  void setDelayed(Instruction *delayed)
-  {
-    this->delayed = delayed;
-  }
+  void setDelayed(Instruction *delayed) { this->delayed = delayed; }
 
-  Instruction *getDelayed()
-  {
-    return this->delayed;
-  }
+  Instruction *getDelayed() { return this->delayed; }
 
-  bool hasDelayed()
-  {
-    return this->delayed != NULL;
-  }
+  bool hasDelayed() { return this->delayed != NULL; }
 
-  void setPrefix(Instruction *prefix)
-  {
-    this->prefix = prefix;
-  }
+  void setPrefix(Instruction *prefix) { this->prefix = prefix; }
 
-  bool hasPrefix()
-  {
-    return this->prefix != NULL;
-  }
+  bool hasPrefix() { return this->prefix != NULL; }
 
-  Instruction *getPrefix()
-  {
-    return this->prefix;
-  }
+  Instruction *getPrefix() { return this->prefix; }
 
   MIPS_register_t getRs() { return this->rs; }
 
@@ -135,10 +86,8 @@ public:
 
   MIPS_register_t getRd() { return this->rd; }
 
-  MIPS_register_t getRegister(mips_register_type_t type)
-  {
-    switch(type)
-    {
+  MIPS_register_t getRegister(mips_register_type_t type) {
+    switch (type) {
     case I_RS:
       return this->getRs();
     case I_RT:
@@ -160,8 +109,7 @@ public:
    * @return a pointer to the last instruction or NULL if there
    *         was no previous write
    */
-  Instruction *getPrevRegisterWrite(mips_register_type_t which)
-  {
+  Instruction *getPrevRegisterWrite(mips_register_type_t which) {
     return this->prev_register_writes[which];
   }
 
@@ -173,30 +121,28 @@ public:
    * @return a pointer to the last instruction or NULL if there
    *         was no previous read
    */
-  Instruction *getPrevRegisterRead(mips_register_type_t which)
-  {
+  Instruction *getPrevRegisterRead(mips_register_type_t which) {
     return this->prev_register_reads[which];
   }
 
   void setPrevRegisterReadAndWrite(Instruction *rinsn, Instruction *winsn,
-      mips_register_type_t which)
-  {
+                                   mips_register_type_t which) {
     this->setPrevNextRegisterGeneric(this->prev_register_reads, which, rinsn);
     this->setPrevNextRegisterGeneric(this->prev_register_writes, which, winsn);
   }
 
   void setNextRegisterReadAndWrite(Instruction *rinsn, Instruction *winsn,
-      mips_register_type_t which)
-  {
+                                   mips_register_type_t which) {
     this->setPrevNextRegisterGeneric(this->next_register_reads, which, rinsn);
     this->setPrevNextRegisterGeneric(this->next_register_writes, which, winsn);
   }
 
   BasicBlock *parent;
+
 protected:
-  void setPrevNextRegisterGeneric(Instruction **table, mips_register_type_t which,
-      Instruction *insn)
-  {
+  void setPrevNextRegisterGeneric(Instruction **table,
+                                  mips_register_type_t which,
+                                  Instruction *insn) {
     table[which] = insn;
   }
 
@@ -211,12 +157,11 @@ protected:
   Instruction *prev_register_reads[3];
   Instruction *next_register_writes[3];
   Instruction *next_register_reads[3];
- 
+
   bool branchTarget;
 };
 
-class InstructionFactory
-{
+class InstructionFactory {
 public:
   static InstructionFactory *getInstance();
 
