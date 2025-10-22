@@ -194,7 +194,7 @@ enum mips_arg mips_arg_size(Elf *elf, Dwarf_Die *functypedie,
   /* Follow typedefs and qualifiers to get to the actual type.  */
   while (tag == DW_TAG_typedef || tag == DW_TAG_const_type ||
          tag == DW_TAG_volatile_type || tag == DW_TAG_restrict_type ||
-         tag == DW_TAG_mutable_type) {
+         tag == /*DW_TAG_mutable_type*/ 0x3e) {
     attr = dwarf_attr_integrate(typedie, DW_AT_type, &attr_mem);
     typedie = dwarf_formref_die(attr, &die_mem);
     tag = dwarf_tag(typedie);

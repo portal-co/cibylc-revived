@@ -10,33 +10,10 @@ set (PROJECT_VERSION_MINOR  0)
 set (PROJECT_VERSION_PATCH  0)
 set (PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
+include(cmake/elfutils.cmake)
+include(cmake/zlib.cmake)
 
 set (translator_SRCS
-	external/elfutils/dwarf_abbrev_hash.c
-	external/elfutils/dwarf_attr.c
-	external/elfutils/dwarf_attr_integrate.c
-	external/elfutils/dwarf_begin_elf.c
-	external/elfutils/dwarf_child.c
-	external/elfutils/dwarf_end.c
-	external/elfutils/dwarf_end.c
-	external/elfutils/dwarf_error.c
-	external/elfutils/dwarf_formaddr.c
-	external/elfutils/dwarf_formref.c
-	external/elfutils/dwarf_formref_die.c
-	external/elfutils/dwarf_formudata.c
-	external/elfutils/dwarf_getabbrev.c
-	external/elfutils/dwarf_hasattr.c
-	external/elfutils/dwarf_hasattr_integrate.c
-	external/elfutils/dwarf_lowpc.c
-	external/elfutils/dwarf_nextcu.c
-	external/elfutils/dwarf_offdie.c
-	external/elfutils/dwarf_siblingof.c
-	external/elfutils/dwarf_sig8_hash.c
-	external/elfutils/dwarf_tag.c
-	external/elfutils/frame-cache.c
-	external/elfutils/libdw_alloc.c
-	external/elfutils/libdw_findcu.c
-	external/elfutils/libdw_form.c
 	src/basicblock.cc
     src/builtins.cc
     src/calltablemethod.cc
@@ -58,13 +35,14 @@ set (translator_SRCS
 
 
 add_executable (xcibyl-translator ${translator_SRCS} src/main.cc)
+add_dependencies(xcibyl-translator omnitrace-elfutils-build zlib_copy_headers_to_destination)
 if (CYGWIN)
-	target_link_libraries (xcibyl-translator elf intl)
+	target_link_libraries (xcibyl-translator ${ElfUtils_LIBRARIES} pthread ${zlib_STATIC_LIBRARIES} intl)
 else()
-	target_link_libraries (xcibyl-translator elf)
+	target_link_libraries (xcibyl-translator ${ElfUtils_LIBRARIES} pthread ${zlib_STATIC_LIBRARIES})
 endif()
 target_include_directories(xcibyl-translator PUBLIC
-	external/elfutils/
+	${ElfUtils_INCLUDE_DIRS}
 	external/
 	include/
 )
