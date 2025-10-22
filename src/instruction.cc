@@ -41,6 +41,7 @@ Instruction::Instruction(uint32_t address, int opcode, MIPS_register_t rs,
 };
 
 Instruction::~Instruction() {}
+InstructionBase::~InstructionBase() {}
 
 void Instruction::setBranchTarget() { this->branchTarget = true; }
 

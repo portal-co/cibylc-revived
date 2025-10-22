@@ -13,6 +13,7 @@
 #define __CONFIG_HH__
 
 #include <stdint.h>
+#include <cstddef>
 
 class Config {
 public:

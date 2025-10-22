@@ -56,15 +56,15 @@ set (translator_SRCS
     src/syscall-wrappers.cc
     src/utils.cc)
 
-include_directories(
-	external/elfutils/
-	external/
-	include/
-)
 
-add_executable (xcibyl-translator ${translator_SRCS})
+add_executable (xcibyl-translator ${translator_SRCS} src/main.cc)
 if (CYGWIN)
 	target_link_libraries (xcibyl-translator elf intl)
 else()
 	target_link_libraries (xcibyl-translator elf)
 endif()
+target_include_directories(xcibyl-translator PUBLIC
+	external/elfutils/
+	external/
+	include/
+)
