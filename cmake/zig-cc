@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+# echo poke > /dev/tty
+# for var; do
+#     # Ignore known bad arguments
+#     if [[ $var == '-shared' ]]; then
+#         exit 0
+#     fi
+# done
+exec zig cc -include $(dirname $0)/shims/argp.h -target wasm32-wasi "$@"

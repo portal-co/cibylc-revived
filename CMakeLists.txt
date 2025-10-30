@@ -10,8 +10,9 @@ set (PROJECT_VERSION_MINOR  0)
 set (PROJECT_VERSION_PATCH  0)
 set (PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT_VERSION_PATCH}")
 
-include(cmake/elfutils.cmake)
 include(cmake/zlib.cmake)
+include(cmake/elfutils.cmake)
+
 
 set (translator_SRCS
 	src/basicblock.cc

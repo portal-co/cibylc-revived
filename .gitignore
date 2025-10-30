@@ -13,3 +13,5 @@ res/
 *.jad
 .jar_built
 out/
+out-wasi/
+.zig-cache/

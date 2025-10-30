@@ -1,11 +1,11 @@
 include (ExternalProject)
 
   set(zlib_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR}/external/zlib_archive)
-  set(ZLIB_URL https://github.com/madler/zlib)
+  set(ZLIB_URL https://github.com/zlib-ng/zlib-ng.git)
   set(ZLIB_BUILD ${CMAKE_CURRENT_BINARY_DIR}/zlib/src/zlib)
   set(ZLIB_INSTALL ${CMAKE_CURRENT_BINARY_DIR}/zlib/install)
   # Match zlib version in tensorflow/workspace.bzl
-  set(ZLIB_TAG v1.2.11)
+  set(ZLIB_TAG 2.2.5)
 
   if(WIN32)
     if(${CMAKE_GENERATOR} MATCHES "Visual Studio.*")
@@ -42,6 +42,10 @@ include (ExternalProject)
       CMAKE_CACHE_ARGS
           -DCMAKE_BUILD_TYPE:STRING=Release
           -DCMAKE_INSTALL_PREFIX:STRING=${ZLIB_INSTALL}
+    CMAKE_ARGS
+    -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
+    -DCMAKE_CXX_COMPILER=${CMAKE_CXX_COMPILER}
+    -DBUILD_SHARED_LIBS=OFF -DZLIB_BUILD_SHARED=OFF -DZLIB_BUILD_TESTING=OFF -DZLIB_BUILD_MINIZIP=OFF -DEMSCRIPTEN=1 -DZLIB_ENABLE_TESTS=OFF -DZLIB_COMPAT=ON
   )
 
   # put zlib includes in the directory where they are expected

@@ -47,7 +47,7 @@ endif()
 
 # If we didn't find a suitable version on the system, then download one from the web
 set(ElfUtils_DOWNLOAD_VERSION
-    "0.188"
+    "0.193"
     CACHE STRING "Version of elfutils to download and install")
 
 # make sure we are not downloading a version less than minimum
@@ -94,14 +94,18 @@ externalproject_add(
     BUILD_IN_SOURCE 1
     CONFIGURE_COMMAND
         ${CMAKE_COMMAND} -E env CC=${ElfUtils_C_COMPILER}
-        CFLAGS=-fPIC\ -O3\ -Wno-error=null-dereference CXX=${ElfUtils_CXX_COMPILER}
-        CXXFLAGS=-fPIC\ -O3\ -Wno-error=null-dereference
-        [=[LDFLAGS=-Wl,-rpath='$$ORIGIN']=] <SOURCE_DIR>/configure --enable-install-elfh
-        --prefix=${_eu_root} --disable-libdebuginfod --disable-debuginfod --disable-nls --disable-zstd
-        --enable-thread-safety --enable-silent-rules
+    CFLAGS=-fPIC\ -O3\ -Wno-error=null-dereference\ -L${ZLIB_INSTALL}/lib\ -lz CXX=${ElfUtils_CXX_COMPILER}
+    CXXFLAGS=-fPIC\ -O3\ -Wno-error=null-dereference\ -L${ZLIB_INSTALL}/lib\ -lz
+        [=[LDFLAGS=-Wl,-rpath='$$ORIGIN']=] ./configure --host=wasm32-wasi --disable-symbol-versioning
+        --prefix=${_eu_root} --disable-libdebuginfod --disable-debuginfod --disable-nls --with-zlib=${ZLIB_INSTALL}
+        
     BUILD_COMMAND ${MAKE_COMMAND} install -s
     BUILD_BYPRODUCTS "${_eu_build_byproducts}"
-    INSTALL_COMMAND "")
+    INSTALL_COMMAND ""
+    DEPENDENCIES zlib_copy_headers_to_destination)
+
+ExternalProject_Add_StepDependencies(omnitrace-elfutils-build build zlib_copy_headers_to_destination)
+
 
 # target for re-executing the installation
 add_custom_target(
