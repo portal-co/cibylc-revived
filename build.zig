@@ -39,5 +39,6 @@ pub fn build(b: *std.Build) void {
     exe.addCSourceFiles(.{ .files = &sources });
     exe.addCSourceFiles(.{ .files = &[_][]const u8{"src/main.cc"} });
     exe.addIncludePath(b.path("include"));
+    exe.linkLibCpp();
     b.installArtifact(exe);
 }
