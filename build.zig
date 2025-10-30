@@ -34,10 +34,12 @@ pub fn build(b: *std.Build) void {
             .link_libc = true,
             .link_libcpp = true,
             .root_source_file = b.path("src/lib.zig"),
+            .single_threaded = false,
         }),
     });
     lib.root_module.linkLibrary(libelf);
     lib.root_module.linkLibrary(libdw);
+    lib.root_module.linkSystemLibrary("pthread", .{});
     lib.root_module.addCSourceFiles(.{ .files = &sources });
     lib.root_module.addIncludePath(b.path("include"));
     b.installArtifact(lib);
@@ -49,11 +51,13 @@ pub fn build(b: *std.Build) void {
             // .strip = false,
             // .pic = pic,
             .link_libc = true,
+            .single_threaded = false,
         }),
     });
     exe.root_module.linkLibrary(lib);
     exe.root_module.linkLibrary(libelf);
     exe.root_module.linkLibrary(libdw);
+    exe.root_module.linkSystemLibrary("pthread", .{});
     exe.root_module.addCSourceFiles(.{ .files = &[_][]const u8{"src/main.cc"} });
     exe.root_module.addIncludePath(b.path("include"));
     b.installArtifact(exe);

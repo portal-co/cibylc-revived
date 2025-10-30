@@ -37,8 +37,8 @@
     // internet connectivity.
     .dependencies = .{
         .elfutils = .{
-            .url = "git+https://github.com/allyourcodebase/elfutils.git#f6127e5dbec045e840a17b0af0b5df752de96ecf",
-            .hash = "elfutils-0.192.0-lx7CHHz6AQCyrTu5ZyBUsH0RfdtrYfLYnpBAkPG5SEMI",
+            .url = "git+https://github.com/allyourcodebase/elfutils.git#c834aab6695719da8a572edf1d103a899ebecd79",
+            .hash = "elfutils-0.192.0-lx7CHBD-AQCZ6z8BazmHUyIlxTNtzkVATs-2QtqBl0Zw",
         },
     },
     .paths = .{

@@ -13,6 +13,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <unistd.h>
@@ -38,7 +39,33 @@ void *xrealloc(void *ptr, size_t size) {
 
   return out;
 }
-
+#ifdef __wasm__
+void *read_cpp(size_t *out_size, const char **defines, const char *fmt, ...) {
+  size_t tmp;
+  int r;
+  char path[2048];
+  va_list ap;
+  va_start(ap, fmt);
+  r = vsnprintf(path, 2048, fmt, ap);
+  va_end(ap);
+  void *file = read_file(&tmp, "%s", path);
+  std::string s((char *)file, tmp);
+  for (int i = 0; defines[i]; i++) {
+    std::string define(defines[i] + 2);
+    size_t aqp = define.find("=");
+    std::string key = define.substr(0, aqp);
+    std::string value = define.substr(aqp + 1, define.length());
+    size_t currentPos = s.find(key);
+    while (currentPos != std::string::npos) {
+      s.replace(currentPos, key.length(), value);
+      currentPos = s.find(key, currentPos + value.length());
+    }
+  };
+  void *data = xcalloc(*out_size = s.length(), 1);
+  memcpy(data, s.c_str(), s.length());
+  return data;
+}
+#else
 void *read_cpp(size_t *out_size, const char **defines, const char *fmt, ...) {
   struct stat buf;
   const char *cpp;
@@ -87,6 +114,7 @@ void *read_cpp(size_t *out_size, const char **defines, const char *fmt, ...) {
 
   return data;
 }
+#endif
 
 void *read_file(size_t *out_size, const char *fmt, ...) {
   struct stat buf;
