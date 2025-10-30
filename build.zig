@@ -33,6 +33,7 @@ pub fn build(b: *std.Build) void {
             // .pic = pic,
             .link_libc = true,
             .link_libcpp = true,
+            .root_source_file = b.path("src/lib.zig"),
         }),
     });
     lib.root_module.linkLibrary(libelf);
