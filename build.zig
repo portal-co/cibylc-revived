@@ -24,6 +24,22 @@ pub fn build(b: *std.Build) void {
     // const libasm = elfutils_dependency.artifact("asm");
 
     const sources = [_][]const u8{ "src/basicblock.cc", "src/builtins.cc", "src/calltablemethod.cc", "src/codeblock.cc", "src/controller.cc", "src/elf.cc", "src/emit.cc", "src/function.cc", "src/functioncolocation.cc", "src/instruction.cc", "src/javamethod.cc", "src/javaclass.cc", "src/mips.cc", "src/mips-dwarf.c", "src/registerallocator.cc", "src/string-instruction.cc", "src/syscall-wrappers.cc", "src/utils.cc" };
+    const lib = b.addLibrary(.{
+        .name = "selba-core",
+        .root_module = b.createModule(.{
+            .target = target,
+            .optimize = optimize,
+            // .strip = false,
+            // .pic = pic,
+            .link_libc = true,
+            .link_libcpp = true,
+        }),
+    });
+    lib.root_module.linkLibrary(libelf);
+    lib.root_module.linkLibrary(libdw);
+    lib.root_module.addCSourceFiles(.{ .files = &sources });
+    lib.root_module.addIncludePath(b.path("include"));
+    b.installArtifact(lib);
     const exe = b.addExecutable(.{
         .name = "xcibyl-translator",
         .root_module = b.createModule(.{
@@ -34,11 +50,10 @@ pub fn build(b: *std.Build) void {
             .link_libc = true,
         }),
     });
-    exe.linkLibrary(libelf);
-    exe.linkLibrary(libdw);
-    exe.addCSourceFiles(.{ .files = &sources });
-    exe.addCSourceFiles(.{ .files = &[_][]const u8{"src/main.cc"} });
-    exe.addIncludePath(b.path("include"));
-    exe.linkLibCpp();
+    exe.root_module.linkLibrary(lib);
+    exe.root_module.linkLibrary(libelf);
+    exe.root_module.linkLibrary(libdw);
+    exe.root_module.addCSourceFiles(.{ .files = &[_][]const u8{"src/main.cc"} });
+    exe.root_module.addIncludePath(b.path("include"));
     b.installArtifact(exe);
 }
